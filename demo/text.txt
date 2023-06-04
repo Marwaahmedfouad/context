@@ -1,0 +1,261 @@
+import axios from 'axios';
+import React, { useContext, useEffect, useState } from 'react';
+import { JsonMoviesContext } from '../Context/JsonMoviesContext';
+
+
+const JsonMovies = () => {
+
+    let { movies, isLoading, getData, postData, myData, deleteMovie, formik , handleNewmovie, handleForm, original_title , poster_path, id } = useContext(JsonMoviesContext)
+    // console.log(movies , isLoading)
+    return (
+        <>
+
+
+            <div>
+
+                <h2 className='text-warning'>Trending Movies...</h2>
+
+                <div className='container mx-auto row text-teal text-center gx-5 gy-5'>
+
+                    {isLoading === true ? <div> <h1>Loading ... <i className='fas fa-spinner fa-spin'></i></h1> </div> :
+                        movies.map((mov) =>
+                            <div className='col-md-3' key={mov.id}>
+
+                                <img src={'https://image.tmdb.org/t/p/w500/' + mov.poster_path} className='w-100' alt='Image' />
+                                {/* <h5 className='text-center my-3'>{mov.original_title.split(' ').splice(0, 4).join(" ")}</h5> */}
+                                <h5 className='text-center my-3'>{mov.original_title}</h5>
+                                {/* <p className='text-secondary'>{mov.overview.split(' ').splice(0, 10).join(' ' || '-')}</p> */}
+                                <button className='btn btn-outline-primary w-100'>Update</button>
+                                <button className='btn btn-outline-danger w-100' onClick={() => deleteMovie(mov.id)}>Delete</button>
+                                <button className='btn btn-outline-danger w-100' onClick={() => postData()}>POST</button>
+                            </div>
+                        )}
+                                {/* {console.log(movies)} */}
+                </div>
+            </div>
+
+
+
+
+
+            <div className='w-50 mx-auto py-4'>
+                <h3>Register Now</h3>
+                <form >
+                    <label name='original_title'>Title</label>
+                    <input value={original_title} onInput={handleNewmovie}  className='form-control mb-2' type='text' name='original_title' id='original_title'></input>
+
+                    <label name='backdrop_path'>backdrop path</label>
+                    <input value={poster_path} onInput={handleNewmovie} className='form-control mb-2' type='text' name='backdrop_path' id='backdrop_path'></input>
+
+                    <label name='id'>id</label>
+                    <input value={id} onInput={handleNewmovie} className='form-control mb-2' type='text' name='id' id='id'></input>
+
+                    <button onClick={handleForm } type='button' className='btn btn-outline-primary  w-50 mx-auto'>Update</button>
+
+                </form>
+
+            </div>
+        </>
+    )
+}
+
+export default JsonMovies;
+// "backdrop_path": "/h8gHn0OzBoaefsYseUByqsmEDMY.jpg",
+//         "id": 41232,
+//         "title": "Wick: Chapter 4",
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import * as Yup from 'yup'
+import axios from 'axios';
+import { useFormik } from 'formik'
+import { useNavigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { createContext, useState } from "react";
+
+
+
+export let JsonMoviesContext = createContext(0);
+
+
+function JsonMoviesContextProvider(props) {
+
+    const [movies, setMovies] = useState([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [original_title, setoriginal_title] = useState('')
+    const [poster_path, setposter_path] = useState('')
+    const [id, setId] = useState('')
+    const [form, setForm] = useState({})
+    const [submitted, setSubmitted] = useState(false);
+    //  {  original_title:'',
+    //     id:'',
+    //     backdrop_bath:'',
+    // }
+    function handleNewmovie(e) {
+        if (e.target.name === 'original_title') {
+            setoriginal_title(e.target.value)
+            // console.log('original_title  = ' + original_title);
+            console.log(original_title);
+
+            // console.log(e.target);
+        } else if (e.target.name === 'backdrop_path') {
+            setposter_path(e.target.value)
+            // console.log('backdrop_path = '+poster_path);
+            console.log(poster_path);
+
+        } else if (e.target.name === 'id') {
+            setId(e.target.value)
+            // console.log('id  =  '+id);
+            console.log(id);
+
+
+        }
+    }
+
+    function handleForm () {
+        setSubmitted(true);
+        setForm({original_title, id, poster_path})
+        console.log(form);
+    }
+
+
+    useEffect(() => {
+        if (submitted) {
+            setMovies([...movies, form]);
+            setForm({});
+            setSubmitted(false);
+            console.log(movies);
+            postData()
+        }
+    }, [submitted, form, movies]);
+
+
+
+
+
+
+
+
+    let getData = () => {
+        setIsLoading(true);
+        axios.get('http://localhost:4000/results')
+            .then(res => setMovies(res.data))
+            .then(setIsLoading(false))
+    }
+
+    // let myData = {
+    //     "adult": false,
+    //     "backdrop_path": "/h8gHn0OzBoaefsYseUByqsmEDMY.jpg",
+    //     "id": 41232,
+    //     "original_title": "Wick: Chapter 4",
+    //     "original_language": "en",
+    //     "original_original_title": "Wick: Chapter 4",
+    //     "overview": "John Wick uncovers a path to defeating The High Table. But before he can earn his freedom, Wick must face off against a new enemy with powerful alliances across the globe and forces that turn old friends into foes.",
+    //     "poster_path": "/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg",
+    //     "media_type": "movie",
+    //     "genre_ids": [
+    //         21,
+    //         51,
+    //         82
+    //     ],
+    //     "popularity": 1729.774,
+    //     "release_date": "2023-03-22",
+    //     "video": false,
+    //     "vote_average": 7.871,
+    //     "vote_count": 1472
+    // }
+
+    let postData = () => {
+        // setForm({original_title, id, poster_path})
+        // // console.log(form);
+        // // setSubmitted(true);
+        // console.log(form);
+        axios.post('http://localhost:4000/results', form)
+            .then(res => {
+                console.log(res);
+                // setForm({ original_title, id, poster_path })
+
+            }) 
+            .catch(err => console.log(err))
+    }
+
+
+    useEffect(() => {
+        getData()
+    }, [])
+
+    useEffect(() => {
+        // console.log(movies);
+    }, [movies])
+
+    function deleteMovie(movieId) {
+        axios.delete(`http://localhost:4000/results/${movieId}`)
+            .then(res => {
+                const updatedMovies = movies.filter((mov) => mov.id !== movieId);
+                setMovies(updatedMovies);
+            })
+            .catch(err => console.log(err))
+
+    }
+
+
+
+
+
+
+
+    const [messageError, setMessageError] = useState('')
+
+
+
+
+
+    return <JsonMoviesContext.Provider value={{ movies, isLoading, getData, postData, deleteMovie,handleForm, handleNewmovie, original_title, poster_path, id }}>
+        {props.children}
+    </JsonMoviesContext.Provider>
+}
+export default JsonMoviesContextProvider;
+
+
+
+
